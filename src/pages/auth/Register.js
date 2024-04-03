@@ -78,6 +78,7 @@ const Register = () => {
           onChange={handleChange}
         />
       </div>
+      {/* display error message if error is not null */}
       {error ? <p className="text-center text-danger">{error}</p> : null}
       <div className='mb-3'>
         <label htmlFor='email' className='form-label'>
