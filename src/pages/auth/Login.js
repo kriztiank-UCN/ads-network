@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { auth, db } from '../../firebaseConfig'
 import { signInWithEmailAndPassword } from 'firebase/auth'
 import { doc, updateDoc } from 'firebase/firestore'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 
 const Login = () => {
   // create state variables and set default values
@@ -26,7 +26,7 @@ const Login = () => {
       setValues({ ...values, error: 'All fields are required' })
       return
     }
-    // clear error message and set loading to true
+    // before making the request, clear error message and set loading to true
     setValues({ ...values, error: '', loading: true })
 
     try {
@@ -83,6 +83,11 @@ const Login = () => {
         <button className='btn btn-secondary btn-sm' disabled={loading}>
           Login
         </button>
+      </div>
+      <div className="text-center mb-3">
+        <small>
+          <Link to="/auth/forgot-password">Forgot Password</Link>
+        </small>
       </div>
     </form>
   )

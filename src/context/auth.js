@@ -22,7 +22,7 @@ const AuthProvider = ({ children }) => {
     // if the user's login status is still being determined, display a loading spinner
     return <Loading />
   }
-  // Pass the user's login status to the value prop of the provider
+  // Pass the user's login status to the value prop of the provider, use aywhere in the app with useContext
   return <AuthContext.Provider value={{ user }}>{children}</AuthContext.Provider>
 }
 
