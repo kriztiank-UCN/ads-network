@@ -3,7 +3,7 @@ import { auth } from '../../firebaseConfig'
 import { sendPasswordResetEmail } from 'firebase/auth'
 
 const ForgotPassword = () => {
-  // create state variables and set default values
+  // setting individual state variables and set default values
   const [email, setEmail] = useState('')
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)

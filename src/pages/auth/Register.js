@@ -5,7 +5,7 @@ import { setDoc, doc, Timestamp } from 'firebase/firestore'
 import { useNavigate } from 'react-router-dom'
 
 const Register = () => {
-  // create state variables and set default values
+  // setting multiple state values, use with e.target.name attribute
   const [values, setValues] = useState({
     name: '',
     email: '',
