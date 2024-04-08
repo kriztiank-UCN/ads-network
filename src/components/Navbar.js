@@ -41,8 +41,13 @@ const Navbar = () => {
         <div className='collapse navbar-collapse' id='navbarSupportedContent'>
           <ul className='navbar-nav ms-auto mb-2 mb-lg-0'>
             {user ? (
-              // if the user is logged in, display a log out button
+              // if the user is logged in, display Profile, logout links
               <>
+                <li className='nav-item'>
+                  <Link className='nav-link' to={`/profile/${user.uid}`}>
+                    Profile
+                  </Link>
+                </li>
                 <button className='btn btn-danger btn-sm' onClick={handleSignout}>
                   Logout
                 </button>
