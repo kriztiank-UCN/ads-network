@@ -56,8 +56,8 @@ const Register = () => {
         error: '',
         loading: false,
       })
-      // redirect to home page
-      navigate('/')
+      // redirect to home page, replace: true will remove the history entry so the user can't go back to the register page
+      navigate('/', { replace: true })
       // error handling ...values will return an object with the current values state, the error property is set to the error message.
     } catch (error) {
       setValues({ ...values, error: error.message, loading: false })

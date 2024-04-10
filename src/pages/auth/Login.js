@@ -5,7 +5,7 @@ import { doc, updateDoc } from 'firebase/firestore'
 import { useNavigate, Link } from 'react-router-dom'
 
 const Login = () => {
-  // create state variables and set default values
+  // setting multiple state values, use with e.target.name attribute
   const [values, setValues] = useState({
     email: '',
     password: '',
@@ -43,8 +43,8 @@ const Login = () => {
         error: '',
         loading: false,
       })
-      // redirect to home page
-      navigate('/')
+      // redirect to home page, replace: true will remove the history entry so the user can't go back to the login page
+      navigate('/', { replace: true })
       // error handling ...values will return an object with the current values state, the error property is set to the error message.
     } catch (error) {
       setValues({ ...values, error: error.message, loading: false })
