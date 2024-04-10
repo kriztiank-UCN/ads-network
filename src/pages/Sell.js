@@ -37,6 +37,7 @@ const Sell = () => {
     setValues({ ...values, error: '', loading: true })
 
     try {
+      // We are assigning the imgs array to the images field, which is our state.
       let imgs = []
       // loop through images if any
       if (images.length) {
@@ -53,6 +54,7 @@ const Sell = () => {
       }
       // add data into firestore
       await addDoc(collection(db, 'ads'), {
+        // We are assigning the imgs array to the images field, which is our state.
         images: imgs,
         title,
         category,

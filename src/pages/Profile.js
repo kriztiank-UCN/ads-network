@@ -1,10 +1,20 @@
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { doc, onSnapshot, updateDoc } from 'firebase/firestore'
+import {
+  collection,
+  doc,
+  getDocs,
+  onSnapshot,
+  orderBy,
+  query,
+  updateDoc,
+  where,
+} from 'firebase/firestore'
 import { deleteObject, getDownloadURL, ref, uploadBytes } from 'firebase/storage'
 import { db, storage, auth } from '../firebaseConfig'
 import { FaUserAlt, FaCloudUploadAlt } from 'react-icons/fa'
 import moment from 'moment'
+import AdCard from '../components/AdCard'
 
 // format createdAt to month and year with moment.js
 const monthAndYear = date =>
@@ -15,6 +25,7 @@ const Profile = () => {
   const { id } = useParams()
   const [user, setUser] = useState()
   const [img, setImg] = useState('')
+  const [ads, setAds] = useState([])
 
   const getUser = async () => {
     // const docSnap = await getDoc(doc(db, 'users', id))
@@ -49,12 +60,33 @@ const Profile = () => {
     setImg('')
   }
 
+  // fetch ads posted by currently logged in user
+  const getAds = async () => {
+    // create collection reference
+    const adsRef = collection(db, 'ads')
+    // execute query, id comes from useParams
+    const q = query(adsRef, where('postedBy', '==', id), orderBy('publishedAt', 'desc'))
+    // get data from firestore
+    const docs = await getDocs(q)
+    // create an local array to store ads
+    let ads = []
+    docs.forEach(doc => {
+      // push ads to the array
+      ads.push({ ...doc.data(), id: doc.id })
+    })
+    // set ads value to the state
+    setAds(ads)
+  }
+  // The rendering of our React component is hampered if a side effect is carried out right in its body. It is best to keep side effects apart from the rendering process. If we need to perform a side effect, it should be done after our component render. This is where the useEffect hook comes in. It allows us to perform side effects in function components.
   useEffect(() => {
     getUser()
     if (img) {
       uploadImage()
     }
+    getAds()
   }, [img])
+
+  console.log(ads)
 
   const deletePhoto = async () => {
     const confirm = window.confirm('Delete photo permanently?')
@@ -115,6 +147,15 @@ const Profile = () => {
       <div className='col-sm-10 col-md-9'>
         <h3>{user.name}</h3>
         <hr />
+        {ads.length ? <h4>Published Ads</h4> : <h4>There are no ads published by this user</h4>}
+        <div className='row'>
+          {ads?.map(ad => (
+            <div key={ad.id} className='col-sm-6 col-md-4 mb-3'>
+              {/* pass ad as a prop to AdCard component */}
+              <AdCard ad={ad} />
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   ) : null
