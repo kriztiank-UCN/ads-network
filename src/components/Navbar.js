@@ -54,6 +54,11 @@ const Navbar = () => {
                     Sell
                   </Link>
                 </li>
+                <li className='nav-item'>
+                  <Link className='nav-link' to={`/favorites`}>
+                    My Favorites
+                  </Link>
+                </li>
                 <button className='btn btn-danger btn-sm' onClick={handleSignout}>
                   Logout
                 </button>
