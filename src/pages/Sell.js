@@ -58,7 +58,7 @@ const Sell = () => {
         images: imgs,
         title,
         category,
-        price,
+        price: Number(price),
         location,
         contact,
         description,

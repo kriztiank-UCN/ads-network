@@ -32,7 +32,7 @@ const AdCard = ({ ad }) => {
     })
   }
 
-  console.log(users)
+  // console.log(users)
 
   return (
     <div className='card'>

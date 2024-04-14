@@ -86,7 +86,7 @@ const Profile = () => {
     getAds()
   }, [img])
 
-  console.log(ads)
+  // console.log(ads)
 
   const deletePhoto = async () => {
     const confirm = window.confirm('Delete photo permanently?')
