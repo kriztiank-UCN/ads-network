@@ -12,12 +12,15 @@ const Home = () => {
     const adsRef = collection(db, 'ads')
     let q
     if (filter !== '' && sort !== '') {
-      // sort by latest
-      q = query(adsRef, orderBy('publishedAt', 'desc'))
+      q = query(
+        adsRef,
+        where('category', '==', filter),
+        orderBy('price', sort === 'high' ? 'desc' : 'asc')
+      )
     } else if (filter !== '') {
       // filter by category
       q = query(adsRef, where('category', '==', filter), orderBy('publishedAt', 'desc'))
-      // sort by price,  
+      // sort by price,
       // if sort is not empty string and sort is not high, then it is low
     } else if (sort === 'high') {
       q = query(adsRef, orderBy('price', 'desc'))
