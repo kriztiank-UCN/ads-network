@@ -4,7 +4,6 @@ import {
   collection,
   doc,
   getDocs,
-  onSnapshot,
   orderBy,
   query,
   updateDoc,
@@ -15,6 +14,9 @@ import { db, storage, auth } from '../firebaseConfig'
 import { FaUserAlt, FaCloudUploadAlt } from 'react-icons/fa'
 import moment from 'moment'
 import AdCard from '../components/AdCard'
+// import custom hook
+import useSnapshot from "../utils/useSnapshot";
+
 
 // format createdAt to month and year with moment.js
 const monthAndYear = date =>
@@ -23,20 +25,11 @@ const monthAndYear = date =>
 const Profile = () => {
   // create state variables and set default values
   const { id } = useParams()
-  const [user, setUser] = useState()
   const [img, setImg] = useState('')
   const [ads, setAds] = useState([])
 
-  const getUser = async () => {
-    // const docSnap = await getDoc(doc(db, 'users', id))
-    // if (docSnap.exists()) {
-    //   setUser(docSnap.data())
-    // }
-    // onSnapshot is a realtime listener that listens for changes to the document in the database
-    const unsub = onSnapshot(doc(db, 'users', id), querySnapshot => setUser(querySnapshot.data()))
-
-    return () => unsub()
-  }
+  // initialize custom hook & rename val to user
+  const { val: user } = useSnapshot("users", id);
 
   const uploadImage = async () => {
     // create image reference, and make unique by adding Date.now() to the name
@@ -79,14 +72,11 @@ const Profile = () => {
   }
   // The rendering of our React component is hampered if a side effect is carried out right in its body. It is best to keep side effects apart from the rendering process. If we need to perform a side effect, it should be done after our component render. This is where the useEffect hook comes in. It allows us to perform side effects in function components.
   useEffect(() => {
-    getUser()
     if (img) {
       uploadImage()
     }
     getAds()
   }, [img])
-
-  // console.log(ads)
 
   const deletePhoto = async () => {
     const confirm = window.confirm('Delete photo permanently?')
