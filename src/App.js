@@ -11,7 +11,7 @@ import AuthProvider from './context/auth'
 import PrivateRoute from './components/PrivateRoute'
 import Sell from './pages/Sell'
 import MyFavorites from './pages/MyFavorites'
-import Ad from "./pages/Ad";
+import Ad from './pages/Ad'
 
 function App() {
   return (
@@ -23,13 +23,13 @@ function App() {
           <Route element={<PrivateRoute />}>
             <Route path='/sell' element={<Sell />} />
             <Route path='/favorites' element={<MyFavorites />} />
+            <Route path='/profile/:id' element={<Profile />} />
           </Route>
           <Route path='/auth/register' element={<Register />} />
           <Route path='/auth/login' element={<Login />} />
           <Route path='/auth/forgot-password' element={<ForgotPassword />} />
           <Route path='/auth/reset-password' element={<ResetPassword />} />
-          <Route path='/profile/:id' element={<Profile />} />
-          <Route path="/:category/:id" element={<Ad />} />
+          <Route path='/:category/:id' element={<Ad />} />
           <Route path='/' element={<Home />} />
         </Routes>
       </BrowserRouter>
