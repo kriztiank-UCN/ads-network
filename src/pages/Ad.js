@@ -1,28 +1,41 @@
 import React, { useState, useEffect } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
-import { deleteDoc, doc, getDoc } from 'firebase/firestore'
+import { useParams, useNavigate, Link, useLocation } from 'react-router-dom'
+import { deleteDoc, doc, getDoc, updateDoc } from 'firebase/firestore'
 import { auth, db, storage } from '../firebaseConfig'
 import { ref, deleteObject } from 'firebase/storage'
 import { AiOutlineHeart, AiFillHeart } from 'react-icons/ai'
-import { FaTrashAlt } from 'react-icons/fa'
+import { FaTrashAlt, FaUserCircle } from 'react-icons/fa'
+import { FiPhoneCall } from 'react-icons/fi'
 import Moment from 'react-moment'
+import Sold from '../components/Sold'
 // import custom hook
 import useSnapshot from '../utils/useSnapshot'
 import { toggleFavorite } from '../utils/fav'
 
 const Ad = () => {
   const { id } = useParams()
+  const location = useLocation()
   const navigate = useNavigate()
   const [ad, setAd] = useState()
   const [idx, setIdx] = useState(0)
+  const [seller, setSeller] = useState()
+  const [showNumber, setShowNumber] = useState(false)
   // initialize custom hook
   const { val } = useSnapshot('favorites', id)
 
   const getAd = async () => {
+    // get ads id from firestore
     const docRef = doc(db, 'ads', id)
     const docSnap = await getDoc(docRef)
     if (docSnap.exists()) {
       setAd(docSnap.data())
+      // get user id from firestore
+      const sellerRef = doc(db, 'users', docSnap.data().postedBy)
+      const sellerSnap = await getDoc(sellerRef)
+
+      if (sellerSnap.exists()) {
+        setSeller(sellerSnap.data())
+      }
     }
   }
 
@@ -48,14 +61,32 @@ const Ad = () => {
     }
   }
 
+  // function to update ad status to sold or not sold
+  const updateStatus = async () => {
+    await updateDoc(doc(db, 'ads', id), {
+      isSold: true,
+    })
+    getAd()
+  }
+
   return ad ? (
     <div className='mt-5 container'>
       <div className='row'>
-        <div id='carouselExample' className='carousel slide col-md-8'>
+        <div id='carouselExample' className='carousel slide col-md-8 position-relative'>
+          {/* pass singleAd prop to fix styling */}
+          {ad.isSold && <Sold singleAd={true} />}
           <div className='carousel-inner'>
             {ad.images.map((image, i) => (
               <div className={`carousel-item ${idx === i ? 'active' : ''}`} key={i}>
-                <img src={image.url} className='d-block w-100' alt={ad.title} />
+                <img
+                  src={image.url}
+                  className='d-block w-100'
+                  alt={ad.title}
+                  style={{
+                    height: '600px',
+                    objectFit: 'cover',
+                  }}
+                />
 
                 <button
                   className='carousel-control-prev'
@@ -85,7 +116,8 @@ const Ad = () => {
           <div className='card'>
             <div className='card-body'>
               <div className='d-flex justify-content-between align-items-center'>
-                <h5 className='card-title'>PKR. {Number(ad.price).toLocaleString()}</h5>
+                <h5 className='card-title'>Price. {Number(ad.price).toLocaleString()}</h5>
+                {/* only show favorites that belongs to the logged in user */}
                 {val?.users?.includes(auth.currentUser?.uid) ? (
                   <AiFillHeart
                     size={30}
@@ -108,9 +140,78 @@ const Ad = () => {
                     <Moment fromNow>{ad.publishedAt.toDate()}</Moment>
                   </small>
                 </p>
-                <FaTrashAlt size={20} className='text-danger' onClick={deleteAd} />
+                {/* only show thrash icon if the ad belongs to the logged in user */}
+                {ad.postedBy === auth.currentUser?.uid && (
+                  <FaTrashAlt size={20} className='text-danger' onClick={deleteAd} />
+                )}
               </div>
             </div>
+          </div>
+          <div className='card mt-3'>
+            <div className='card-body'>
+              <h5 className='card-title'>Sellers Description</h5>
+              {/* link to seller profile/user id */}
+              <Link to={`/profile/${ad.postedBy}`}>
+                <div className='d-flex align-items-center'>
+                  {seller?.photoUrl ? (
+                    <img
+                      src={seller.photoUrl}
+                      alt={seller.name}
+                      style={{
+                        width: '50px',
+                        height: '50px',
+                        borderRadius: '50%',
+                        marginRight: '10px',
+                      }}
+                    />
+                  ) : (
+                    <FaUserCircle size={30} className='me-2' />
+                  )}
+                  <h6>{seller?.name}</h6>
+                </div>
+              </Link>
+            </div>
+            <div>
+              {/* show this if user is logged in */}
+              {auth.currentUser ? (
+                <div className='text-center'>
+                  {showNumber ? (
+                    <p>
+                      <FiPhoneCall size={20} /> {ad.contact}
+                    </p>
+                  ) : (
+                    <button
+                      className='btn btn-secondary btn-sm mb-3'
+                      onClick={() => setShowNumber(true)}
+                    >
+                      Show Contact Info
+                    </button>
+                  )}
+                  <br />
+                  {/* show button to the logged in user who is not the creator of the ad */}
+                  {ad.postedBy !== auth.currentUser?.uid && (
+                    <button className='btn btn-secondary btn-sm mb-3'>Chat With Seller</button>
+                  )}
+                </div>
+              ) : (
+                <p className='text-center'>
+                  {/* show this if user is not logged in */}
+                  <Link to='/auth/login' state={{ from: location }} className='text-primary'>
+                    Login
+                  </Link>{' '}
+                  to see contact info
+                </p>
+              )}
+            </div>
+          </div>
+          {/* mark ad as sold */}
+          <div className='mt-5 text-center'>
+            {/* if ad.isSold is false and ad.postedBy is equal to the logged in user id */}
+            {!ad.isSold && ad.postedBy === auth.currentUser?.uid && (
+              <button className='btn btn-secondary btn-sm' onClick={updateStatus}>
+                Mark as Sold
+              </button>
+            )}
           </div>
         </div>
       </div>

@@ -1,8 +1,9 @@
-import React from "react";
-import { Link } from "react-router-dom";
-import { AiOutlineHeart, AiFillHeart } from "react-icons/ai";
-import Moment from "react-moment";
-import { auth } from "../firebaseConfig";
+import React from 'react'
+import { Link } from 'react-router-dom'
+import { AiOutlineHeart, AiFillHeart } from 'react-icons/ai'
+import Moment from 'react-moment'
+import { auth } from '../firebaseConfig'
+import Sold from '../components/Sold'
 // import custom hook
 import useSnapshot from '../utils/useSnapshot'
 import { toggleFavorite } from '../utils/fav'
@@ -16,13 +17,14 @@ const AdCard = ({ ad }) => {
   const adLink = `/${ad.category.toLowerCase()}/${ad.id}`
 
   return (
-    <div className='card'>
+    <div className='card position-relative'>
+      {ad.isSold && <Sold />}
       <Link to={adLink}>
         <img
           src={ad.images[0].url}
           alt={ad.title}
           className='card-img-top'
-          style={{ width: '100%', height: '200px' }}
+          style={{ width: '100%', height: '200px', objectFit: 'cover' }}
         />
       </Link>
       <div className='card-body'>
@@ -49,7 +51,7 @@ const AdCard = ({ ad }) => {
           <p className='card-text'>
             {ad.location} - <Moment fromNow>{ad.publishedAt.toDate()}</Moment>
             <br />
-            PKR. {Number(ad.price).toLocaleString()}
+            Price. {Number(ad.price).toLocaleString()}
           </p>
         </Link>
       </div>

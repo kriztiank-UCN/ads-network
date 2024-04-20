@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { auth, db } from '../../firebaseConfig'
 import { signInWithEmailAndPassword } from 'firebase/auth'
 import { doc, updateDoc } from 'firebase/firestore'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate, Link, useLocation } from 'react-router-dom'
 
 const Login = () => {
   // setting multiple state values, use with e.target.name attribute
@@ -14,11 +14,16 @@ const Login = () => {
   })
   // useNavigate to redirect to home page
   const navigate = useNavigate()
+  // useLocation to get the current location
+  const location = useLocation()
   // destructure default values from the useState getter
   const { email, password, error, loading } = values
   // { ...values, [e.target.name]: e.target.value } : This is an object that is passed to setValues. The ...values part is using the spread operator to create a new object with the same properties as the current values state.
   const handleChange = e => setValues({ ...values, [e.target.name]: e.target.value })
 
+  // console.log(location)
+
+  // handleSubmit function is an async function that takes an event object as an argument. The event object is passed to the function when the form is submitted. The function prevents the default form submission behavior by calling e.preventDefault()
   const handleSubmit = async e => {
     e.preventDefault()
     // validate fields
@@ -43,8 +48,13 @@ const Login = () => {
         error: '',
         loading: false,
       })
+      // if location.state?.from is true, navigate to the previous page, else navigate to home page
+      if (location.state?.from) {
+        navigate(location.state.from.pathname)
+      } else {
       // redirect to home page, replace: true will remove the history entry so the user can't go back to the login page
       navigate('/', { replace: true })
+      }
       // error handling ...values will return an object with the current values state, the error property is set to the error message.
     } catch (error) {
       setValues({ ...values, error: error.message, loading: false })
@@ -84,9 +94,9 @@ const Login = () => {
           Login
         </button>
       </div>
-      <div className="text-center mb-3">
+      <div className='text-center mb-3'>
         <small>
-          <Link to="/auth/forgot-password">Forgot Password</Link>
+          <Link to='/auth/forgot-password'>Forgot Password</Link>
         </small>
       </div>
     </form>
