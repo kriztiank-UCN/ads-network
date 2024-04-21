@@ -45,6 +45,11 @@ const Navbar = () => {
               // if the user is logged in, display Profile, logout links
               <>
                 <li className='nav-item'>
+                  <Link className='nav-link' to='/chat'>
+                    Chat
+                  </Link>
+                </li>
+                <li className='nav-item'>
                   <Link className='nav-link' to={`/profile/${user.uid}`}>
                     Profile
                   </Link>

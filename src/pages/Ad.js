@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useParams, useNavigate, Link, useLocation } from 'react-router-dom'
-import { deleteDoc, doc, getDoc, updateDoc } from 'firebase/firestore'
+import { deleteDoc, doc, getDoc, setDoc, updateDoc } from 'firebase/firestore'
 import { auth, db, storage } from '../firebaseConfig'
 import { ref, deleteObject } from 'firebase/storage'
 import { AiOutlineHeart, AiFillHeart } from 'react-icons/ai'
@@ -67,6 +67,30 @@ const Ad = () => {
       isSold: true,
     })
     getAd()
+  }
+
+  // onClick a document is created in messages collection in Firestore
+  const createChatroom = async () => {
+    // ID will be a combination of ad ID, buyer and seller ID
+    // get the logged in user ID
+    const loggedInUser = auth.currentUser.uid
+
+    const chatId =
+      // compare the logged in user ID with the ad creator ID (who is logged in)
+      loggedInUser > ad.postedBy
+        ? // if its the loggedInUser, format the chatId as below
+          `${loggedInUser}.${ad.postedBy}.${id}`
+        : // if its the ad creator, format the chatId as below
+          `${ad.postedBy}.${loggedInUser}.${id}`
+
+    // create a document in messages collection in Firestore
+    await setDoc(doc(db, 'messages', chatId), {
+      // specify the fields (the ad ID and the users who are chatting)
+      ad: id,
+      users: [loggedInUser, ad.postedBy],
+    })
+    // navigate option state: (send the ad along with the request to the chat page)
+    navigate('/chat', { state: { ad } })
   }
 
   return ad ? (
@@ -190,7 +214,10 @@ const Ad = () => {
                   <br />
                   {/* show button to the logged in user who is not the creator of the ad */}
                   {ad.postedBy !== auth.currentUser?.uid && (
-                    <button className='btn btn-secondary btn-sm mb-3'>Chat With Seller</button>
+                    // onClick a document is created in messages collection in Firestore
+                    <button className='btn btn-secondary btn-sm mb-3' onClick={createChatroom}>
+                      Chat With Seller
+                    </button>
                   )}
                 </div>
               ) : (
