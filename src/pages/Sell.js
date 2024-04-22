@@ -65,8 +65,20 @@ const Sell = () => {
         isSold: false,
         publishedAt: Timestamp.fromDate(new Date()),
         postedBy: auth.currentUser.uid,
+        // adId will be appended here
       })
-
+      //  create a document in the ads collection with the adId field
+      await setDoc(
+        doc(db, 'ads', result.id),
+        {
+          adId: result.id,
+        },
+        // merge the id with the existing document do not overwrite
+        {
+          merge: true,
+        }
+      )
+      // create a document in the favorites collection with the result ID and an empty users array
       await setDoc(doc(db, 'favorites', result.id), {
         users: [],
       })

@@ -1,14 +1,18 @@
-import { doc, getDoc } from 'firebase/firestore'
+import { addDoc, collection, doc, getDoc, Timestamp } from 'firebase/firestore'
 import React, { useEffect, useState } from 'react'
 import { db, auth } from '../firebaseConfig'
 import { useLocation, Link } from 'react-router-dom'
+import MessageForm from '../components/MessageForm'
 
 const Chat = () => {
   const [chat, setChat] = useState()
+  const [text, setText] = useState('')
   const location = useLocation()
+  // get the current logged in user's id
+  const user1 = auth.currentUser.uid
 
   const getChat = async ad => {
-    const buyer = await getDoc(doc(db, 'users', auth.currentUser.uid))
+    const buyer = await getDoc(doc(db, 'users', user1))
     const seller = await getDoc(doc(db, 'users', ad.postedBy))
     setChat({ ad, me: buyer.data(), other: seller.data() })
   }
@@ -18,6 +22,28 @@ const Chat = () => {
       getChat(location.state?.ad)
     }
   }, [])
+  // store the chat inside a subcollection of the messages collection called chat
+  const handleSubmit = async e => {
+    e.preventDefault()
+    // get the other user's id from the chat state
+    const user2 = chat.other.uid
+    const chatId =
+      // compare the logged in user ID with the ad creator ID (who is logged in)
+      user1 > user2
+        ? // if its the logged in user, format the chatId as below
+        `${user1}.${user2}.${chat.ad.adId}`
+        : // if its the ad creator, format the chatId as below
+        `${user2}.${user1}.${chat.ad.adId}`;
+
+    // create a chat subdocument in messages collection in Firestore
+    await addDoc(collection(db, 'messages', chatId, 'chat'), {
+      text,
+      sender: user1,
+      createdAt: Timestamp.fromDate(new Date()),
+    })
+    // clear the text form field
+    setText('')
+  }
 
   // console.log(chat)
 
@@ -27,7 +53,7 @@ const Chat = () => {
         className='col-2 col-md-4 users_container'
         style={{ borderRight: '1px solid #ddd' }}
       ></div>
-      <div className='col-10 col-md-8'>
+      <div className='col-10 col-md-8 position-relative'>
         {chat ? (
           <>
             <div className='text-center mt-1' style={{ borderBottom: '1px solid #ddd' }}>
@@ -48,13 +74,15 @@ const Chat = () => {
                   </div>
                   <Link
                     className='btn btn-secondary btn-sm'
-                    to={`/${chat.ad.category.toLowerCase()}/${chat.ad.id}`}
+                    to={`/${chat.ad.category.toLowerCase()}/${chat.ad.adId}`}
                   >
                     View Ad
                   </Link>
                 </div>
               </div>
             </div>
+            {/* pass the text, setText and handleSubmit props to MessageForm.js */}
+            <MessageForm text={text} setText={setText} handleSubmit={handleSubmit} />
           </>
         ) : (
           <div className='text-center mt-5'>

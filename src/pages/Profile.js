@@ -65,7 +65,7 @@ const Profile = () => {
     let ads = []
     docs.forEach(doc => {
       // push ads to the array
-      ads.push({ ...doc.data(), id: doc.id })
+      ads.push({ ...doc.data()})
     })
     // set ads value to the state
     setAds(ads)
@@ -153,7 +153,7 @@ const Profile = () => {
         {ads.length ? <h4>Published Ads</h4> : <h4>There are no ads published by this user</h4>}
         <div className='row'>
           {ads?.map(ad => (
-            <div key={ad.id} className='col-sm-6 col-md-4 mb-3'>
+            <div key={ad.adId} className='col-sm-6 col-md-4 mb-3'>
               {/* pass ad as a prop to AdCard component */}
               <AdCard ad={ad} />
             </div>

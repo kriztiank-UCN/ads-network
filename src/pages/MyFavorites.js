@@ -22,7 +22,7 @@ const MyFavorites = () => {
     let ads = []
     const docs = await Promise.all(promises)
     docs.forEach(querySnap =>
-      querySnap.forEach(dSnap => ads.push({ ...dSnap.data(), id: dSnap.id }))
+      querySnap.forEach(dSnap => ads.push({ ...dSnap.data()}))
     )
     // passing ads array to state
     setAds(ads)
@@ -37,7 +37,7 @@ const MyFavorites = () => {
       {ads.length ? <h3>Favorite Ads</h3> : <h3>No Favorite Ads</h3>}
       <div className='row'>
         {ads.map(ad => (
-          <div key={ad.id} className='col-sm-6 col-md-3 mb-3'>
+          <div key={ad.adId} className='col-sm-6 col-md-3 mb-3'>
             <AdCard ad={ad} />
           </div>
         ))}

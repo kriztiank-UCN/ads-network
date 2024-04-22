@@ -1,4 +1,4 @@
-// recieve singleAd as a prop from parent component
+// recieve singleAd as a prop from Ad component
 const Sold = ({ singleAd }) => {
   return (
     <div
