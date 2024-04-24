@@ -4,6 +4,8 @@ import {
   doc,
   getDoc,
   getDocs,
+  onSnapshot,
+  orderBy,
   query,
   Timestamp,
   where,
@@ -13,15 +15,38 @@ import { db, auth } from '../firebaseConfig'
 import { useLocation, Link } from 'react-router-dom'
 import MessageForm from '../components/MessageForm'
 import User from '../components/User'
+import Message from '../components/Message'
 
 const Chat = () => {
   const [chat, setChat] = useState()
   const [text, setText] = useState('')
   const [users, setUsers] = useState([])
+  const [msgs, setMsgs] = useState([])
 
   const location = useLocation()
   // get the current logged in user's id
   const user1 = auth.currentUser.uid
+
+  // There are three objects in this user ad me and other. The me object will always be the currently logged in user. The other object will be the user with whom the currently logged in user is chatting. The ad object will be the ad that the user is chatting about. The user object will contain all these three objects.
+  const selectUser = async user => {
+    setChat(user)
+    // retrieve the conversation between two users.
+    const user2 = user.other.uid
+    const id =
+      user1 > user2 ? `${user1}.${user2}.${user.ad.adId}` : `${user2}.${user1}.${user.ad.adId}`
+    // create a reference to the chat subcollection in the messages collection in Firestore
+    const msgsRef = collection(db, 'messages', id, 'chat')
+    // create a query to get all the messages in the chat subcollection
+    const q = query(msgsRef, orderBy('createdAt', 'asc'))
+    // listen for changes in the chat subcollection
+    onSnapshot(q, querySnapshot => {
+      // create an empty local array to store the messages
+      let msgs = []
+      // loop through all the messages in the query snapshot
+      querySnapshot.forEach(doc => msgs.push(doc.data()))
+      setMsgs(msgs)
+    })
+  }
 
   const getChat = async ad => {
     const buyer = await getDoc(doc(db, 'users', user1))
@@ -41,7 +66,6 @@ const Chat = () => {
 
     // So we will make three requests inside a for of loop.
     // To get the ad information based on ad ID and to get users information based on the IDs.
-
     // create an empty local array to store the users
     const users = []
     // loop through all the messages
@@ -111,11 +135,11 @@ const Chat = () => {
   // console.log(chat)
 
   return (
-    <div className='row'>
+    <div className='row g-0'>
       <div className='col-2 col-md-4 users_container' style={{ borderRight: '1px solid #ddd' }}>
         {users.map((user, i) => (
-          // pass the user object to User.js component
-          <User key={i} user={user} />
+          // pass the user & selectUser objects to User.js component
+          <User key={i} user={user} selectUser={selectUser} chat={chat} />
         ))}
       </div>
       <div className='col-10 col-md-8 position-relative'>
@@ -145,6 +169,14 @@ const Chat = () => {
                   </Link>
                 </div>
               </div>
+            </div>
+            {/* messages */}
+            <div className='messages overflow-auto'>
+              {/* loop through all the messages in the msgs array */}
+              {msgs.map((msg, i) => (
+                // pass the msg and user1 objects to Message.js component
+                <Message key={i} msg={msg} user1={user1} />
+              ))}
             </div>
             {/* pass the text, setText and handleSubmit props to MessageForm.js */}
             <MessageForm text={text} setText={setText} handleSubmit={handleSubmit} />

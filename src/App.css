@@ -11,3 +11,11 @@
 .users_container {
   height: 90vh;
 }
+
+.gray {
+  background-color: #ddd;
+}
+
+.messages {
+  height: calc(100vh - 250px);
+}
