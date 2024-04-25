@@ -7,7 +7,7 @@ import { auth, db } from '../firebaseConfig'
 
 const Navbar = () => {
   // destructure the user object from the AuthContext
-  const { user } = useContext(AuthContext)
+  const { user, unread } = useContext(AuthContext)
   const navigate = useNavigate()
 
   const handleSignout = async () => {
@@ -45,8 +45,13 @@ const Navbar = () => {
               // if the user is logged in, display Profile, logout links
               <>
                 <li className='nav-item'>
-                  <Link className='nav-link' to='/chat'>
+                  <Link className='nav-link position-relativ' to='/chat'>
                     Chat
+                    {unread.length ? (
+                      <span className="position-absolute top-10 start-90 translate-middle p-1 bg-danger border border-light rounded-circle">
+                        <span className="visually-hidden">New alerts</span>
+                      </span>
+                    ) : null}
                   </Link>
                 </li>
                 <li className='nav-item'>
