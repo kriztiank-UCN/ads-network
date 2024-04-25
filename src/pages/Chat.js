@@ -22,11 +22,11 @@ const Chat = () => {
   const [text, setText] = useState('')
   const [users, setUsers] = useState([])
   const [msgs, setMsgs] = useState([])
+  const [online, setOnline] = useState({})
 
   const location = useLocation()
   // get the current logged in user's id
   const user1 = auth.currentUser.uid
-
   // There are three objects in this user ad me and other. The me object will always be the currently logged in user. The other object will be the user with whom the currently logged in user is chatting. The ad object will be the ad that the user is chatting about. The user object will contain all these three objects.
   const selectUser = async user => {
     setChat(user)
@@ -39,13 +39,15 @@ const Chat = () => {
     // create a query to get all the messages in the chat subcollection
     const q = query(msgsRef, orderBy('createdAt', 'asc'))
     // listen for changes in the chat subcollection
-    onSnapshot(q, querySnapshot => {
+    const unsub = onSnapshot(q, querySnapshot => {
       // create an empty local array to store the messages
       let msgs = []
       // loop through all the messages in the query snapshot
       querySnapshot.forEach(doc => msgs.push(doc.data()))
       setMsgs(msgs)
     })
+    // unsubscribe from the snapshot real-time listener
+    return () => unsub()
   }
 
   const getChat = async ad => {
@@ -68,6 +70,8 @@ const Chat = () => {
     // To get the ad information based on ad ID and to get users information based on the IDs.
     // create an empty local array to store the users
     const users = []
+    // workaround to unsubscribe from real-time listener inside a loop
+    const unsubscribes = []
     // loop through all the messages
     for (const message of messages) {
       // create a reference to the ads document and id
@@ -96,8 +100,21 @@ const Chat = () => {
         me: meDoc.data(),
         other: otherDoc.data(),
       })
+      // create a real-time listener to get the online status of the other user
+      const unsub = onSnapshot(otherRef, doc => {
+        setOnline(prev => ({
+          ...prev,
+          [doc.data().uid]: doc.data().isOnline,
+        }))
+      })
+      // workaround to unsubscribe from real-time listener inside a loop
+      unsubscribes.push(unsub)
     }
     setUsers(users)
+    // workaround to unsubscribe from real-time listener inside a loop (cleanup function)
+    return () => {
+      unsubscribes.forEach(unsubcribe => unsubcribe())
+    }
   }
 
   useEffect(() => {
@@ -138,8 +155,8 @@ const Chat = () => {
     <div className='row g-0'>
       <div className='col-2 col-md-4 users_container' style={{ borderRight: '1px solid #ddd' }}>
         {users.map((user, i) => (
-          // pass the user & selectUser objects to User.js component
-          <User key={i} user={user} selectUser={selectUser} chat={chat} />
+          // pass the user, selectUser & online objects to User.js component
+          <User key={i} user={user} selectUser={selectUser} chat={chat} online={online} />
         ))}
       </div>
       <div className='col-10 col-md-8 position-relative'>
