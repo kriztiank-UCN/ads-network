@@ -1,11 +1,22 @@
 import { FaUserCircle } from 'react-icons/fa'
+import useSnapshot from "../utils/useSnapshot";
 
-const User = ({ user, selectUser, chat, online }) => {
+const User = ({ user, selectUser, chat, online, user1  }) => {
+  const user2 = user.other.uid;
+  const id =
+    user1 > user2
+      ? `${user1}.${user2}.${user.ad.adId}`
+      : `${user2}.${user1}.${user.ad.adId}`;
+  // val is doc.data() from the messages collection
+  const { val } = useSnapshot("messages", id);
+
   return user ? (
     <div
-      className={`d-flex align-items-center justify-content-center justify-content-md-start my-2 p-1 ${
+      className={`d-flex justify-content-center justify-content-md-start my-2 p-1 ${
         user.ad.title === chat?.ad.title && user.other.name === chat?.other.name ? 'gray' : ''
-      }`}
+      } 
+      // change the background color to blue if the last sender is not the logged in user and the last message is unread
+      ${val?.lastSender !== user1 && val?.lastUnread ? "bg-info" : ""}`}
       onClick={() => selectUser(user)}
       style={{ cursor: 'pointer', position: 'relative' }}
     >
@@ -36,6 +47,12 @@ const User = ({ user, selectUser, chat, online }) => {
           <br />
           {user.ad.title}
         </h6>
+
+        <small>
+          {val?.lastText?.length > 30
+            ? val?.lastText.slice(0, 30) + '...'
+            : val?.lastText}
+        </small>
       </div>
     </div>
   ) : null

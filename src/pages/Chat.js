@@ -8,6 +8,7 @@ import {
   orderBy,
   query,
   Timestamp,
+  updateDoc,
   where,
 } from 'firebase/firestore'
 import React, { useEffect, useState } from 'react'
@@ -46,6 +47,17 @@ const Chat = () => {
       querySnapshot.forEach(doc => msgs.push(doc.data()))
       setMsgs(msgs)
     })
+    // get the last message in the chat list
+    const docSnap = await getDoc(doc(db, 'messages', id))
+    if (docSnap.exists()) {
+      if (docSnap.data().lastSender !== user1 && docSnap.data().lastUnread) {
+        {
+          await updateDoc(doc(db, 'messages', id), {
+            lastUnread: false,
+          })
+        }
+      }
+    }
     // unsubscribe from the snapshot real-time listener
     return () => unsub()
   }
@@ -145,6 +157,12 @@ const Chat = () => {
       sender: user1,
       createdAt: Timestamp.fromDate(new Date()),
     })
+    // display the last message in the chat list
+    await updateDoc(doc(db, 'messages', chatId), {
+      lastText: text,
+      lastSender: user1,
+      lastUnread: true,
+    })
     // clear the text form field
     setText('')
   }
@@ -155,8 +173,15 @@ const Chat = () => {
     <div className='row g-0'>
       <div className='col-2 col-md-4 users_container' style={{ borderRight: '1px solid #ddd' }}>
         {users.map((user, i) => (
-          // pass the user, selectUser & online objects to User.js component
-          <User key={i} user={user} selectUser={selectUser} chat={chat} online={online} />
+          // pass the user, selectUser, online & user1 objects to User.js component
+          <User
+            key={i}
+            user={user}
+            selectUser={selectUser}
+            chat={chat}
+            online={online}
+            user1={user1}
+          />
         ))}
       </div>
       <div className='col-10 col-md-8 position-relative'>
