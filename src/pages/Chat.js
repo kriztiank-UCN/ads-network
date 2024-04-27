@@ -171,7 +171,7 @@ const Chat = () => {
 
   return (
     <div className='row g-0'>
-      <div className='col-2 col-md-4 users_container' style={{ borderRight: '1px solid #ddd' }}>
+      <div className='col-2 col-md-4 users-container' style={{ borderRight: '1px solid #ddd' }}>
         {users.map((user, i) => (
           // pass the user, selectUser, online & user1 objects to User.js component
           <User
