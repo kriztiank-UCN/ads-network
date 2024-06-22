@@ -1,16 +1,16 @@
-import React, { useState, useEffect } from 'react'
-import { useParams, useNavigate, Link, useLocation } from 'react-router-dom'
-import { deleteDoc, doc, getDoc, setDoc, updateDoc } from 'firebase/firestore'
-import { auth, db, storage } from '../firebaseConfig'
-import { ref, deleteObject } from 'firebase/storage'
-import { AiOutlineHeart, AiFillHeart } from 'react-icons/ai'
-import { FaTrashAlt, FaUserCircle } from 'react-icons/fa'
-import { FiPhoneCall } from 'react-icons/fi'
-import Moment from 'react-moment'
-import Sold from '../components/Sold'
+import React, { useState, useEffect } from "react"
+import { useParams, useNavigate, Link, useLocation } from "react-router-dom"
+import { deleteDoc, doc, getDoc, setDoc, updateDoc } from "firebase/firestore"
+import { auth, db, storage } from "../firebaseConfig"
+import { ref, deleteObject } from "firebase/storage"
+import { AiOutlineHeart, AiFillHeart } from "react-icons/ai"
+import { FaTrashAlt, FaUserCircle } from "react-icons/fa"
+import { FiPhoneCall } from "react-icons/fi"
+import Moment from "react-moment"
+import Sold from "../components/Sold"
 // import custom hook
-import useSnapshot from '../utils/useSnapshot'
-import { toggleFavorite } from '../utils/fav'
+import useSnapshot from "../utils/useSnapshot"
+import { toggleFavorite } from "../utils/fav"
 
 const Ad = () => {
   const { id } = useParams()
@@ -21,16 +21,16 @@ const Ad = () => {
   const [seller, setSeller] = useState()
   const [showNumber, setShowNumber] = useState(false)
   // initialize custom hook
-  const { val } = useSnapshot('favorites', id)
+  const { val } = useSnapshot("favorites", id)
 
   const getAd = async () => {
     // get ads id from firestore
-    const docRef = doc(db, 'ads', id)
+    const docRef = doc(db, "ads", id)
     const docSnap = await getDoc(docRef)
     if (docSnap.exists()) {
       setAd(docSnap.data())
       // get user id from firestore
-      const sellerRef = doc(db, 'users', docSnap.data().postedBy)
+      const sellerRef = doc(db, "users", docSnap.data().postedBy)
       const sellerSnap = await getDoc(sellerRef)
 
       if (sellerSnap.exists()) {
@@ -53,9 +53,9 @@ const Ad = () => {
         await deleteObject(imgRef)
       }
       // delete fav doc from firestore
-      await deleteDoc(doc(db, 'favorites', id))
+      await deleteDoc(doc(db, "favorites", id))
       // delete ad doc from firestore
-      await deleteDoc(doc(db, 'ads', id))
+      await deleteDoc(doc(db, "ads", id))
       // navigate to seller profile
       navigate(`/profile/${auth.currentUser.uid}`)
     }
@@ -63,7 +63,7 @@ const Ad = () => {
 
   // function to update ad status to sold or not sold
   const updateStatus = async () => {
-    await updateDoc(doc(db, 'ads', id), {
+    await updateDoc(doc(db, "ads", id), {
       isSold: true,
     })
     getAd()
@@ -84,112 +84,112 @@ const Ad = () => {
           `${ad.postedBy}.${loggedInUser}.${id}`
 
     // create a document in messages collection in Firestore
-    await setDoc(doc(db, 'messages', chatId), {
+    await setDoc(doc(db, "messages", chatId), {
       // specify the fields (the ad ID and the users who are chatting)
       ad: id,
       users: [loggedInUser, ad.postedBy],
     })
     // navigate option state: (send the ad along with the request to the chat page)
-    navigate('/chat', { state: { ad } })
+    navigate("/chat", { state: { ad } })
   }
 
   return ad ? (
-    <div className='mt-5 container'>
-      <div className='row'>
-        <div id='carouselExample' className='carousel slide col-md-8 position-relative'>
+    <div className="mt-5 container">
+      <div className="row">
+        <div id="carouselExample" className="carousel slide col-md-8 position-relative">
           {/* pass singleAd prop to fix styling */}
           {ad.isSold && <Sold singleAd={true} />}
-          <div className='carousel-inner'>
+          <div className="carousel-inner">
             {ad.images.map((image, i) => (
-              <div className={`carousel-item ${idx === i ? 'active' : ''}`} key={i}>
+              <div className={`carousel-item ${idx === i ? "active" : ""}`} key={i}>
                 <img
                   src={image.url}
-                  className='d-block w-100'
+                  className="d-block w-100"
                   alt={ad.title}
                   style={{
-                    height: '600px',
-                    objectFit: 'cover',
+                    height: "600px",
+                    objectFit: "cover",
                   }}
                 />
 
                 <button
-                  className='carousel-control-prev'
-                  type='button'
-                  data-bs-target='#carouselExample'
-                  data-bs-slide='prev'
+                  className="carousel-control-prev"
+                  type="button"
+                  data-bs-target="#carouselExample"
+                  data-bs-slide="prev"
                   onClick={() => setIdx(i)}
                 >
-                  <span className='carousel-control-prev-icon' aria-hidden='true'></span>
-                  <span className='visually-hidden'>Previous</span>
+                  <span className="carousel-control-prev-icon" aria-hidden="true"></span>
+                  <span className="visually-hidden">Previous</span>
                 </button>
                 <button
-                  className='carousel-control-next'
-                  type='button'
-                  data-bs-target='#carouselExample'
-                  data-bs-slide='next'
+                  className="carousel-control-next"
+                  type="button"
+                  data-bs-target="#carouselExample"
+                  data-bs-slide="next"
                   onClick={() => setIdx(i)}
                 >
-                  <span className='carousel-control-next-icon' aria-hidden='true'></span>
-                  <span className='visually-hidden'>Next</span>
+                  <span className="carousel-control-next-icon" aria-hidden="true"></span>
+                  <span className="visually-hidden">Next</span>
                 </button>
               </div>
             ))}
           </div>
         </div>
-        <div className='col-md-4'>
-          <div className='card'>
-            <div className='card-body'>
-              <div className='d-flex justify-content-between align-items-center'>
-                <h5 className='card-title'>Price. {Number(ad.price).toLocaleString()}</h5>
+        <div className="col-md-4">
+          <div className="card">
+            <div className="card-body">
+              <div className="d-flex justify-content-between align-items-center">
+                <h5 className="card-title">Price. {Number(ad.price).toLocaleString()}</h5>
                 {/* only show favorites that belongs to the logged in user */}
                 {val?.users?.includes(auth.currentUser?.uid) ? (
                   <AiFillHeart
                     size={30}
                     onClick={() => toggleFavorite(val.users, id)}
-                    className='text-danger'
+                    className="text-danger"
                   />
                 ) : (
                   <AiOutlineHeart
                     size={30}
                     onClick={() => toggleFavorite(val.users, id)}
-                    className='text-danger'
+                    className="text-danger"
                   />
                 )}
               </div>
-              <h6 className='card-subtitle mb-2'>{ad.title}</h6>
-              <div className='d-flex justify-content-between'>
-                <p className='card-text'>
-                  {ad.location} -{' '}
+              <h6 className="card-subtitle mb-2">{ad.title}</h6>
+              <div className="d-flex justify-content-between">
+                <p className="card-text">
+                  {ad.location} -{" "}
                   <small>
                     <Moment fromNow>{ad.publishedAt.toDate()}</Moment>
                   </small>
                 </p>
                 {/* only show thrash icon if the ad belongs to the logged in user */}
                 {ad.postedBy === auth.currentUser?.uid && (
-                  <FaTrashAlt size={20} className='text-danger' onClick={deleteAd} />
+                  <FaTrashAlt size={20} className="text-danger" onClick={deleteAd} />
                 )}
               </div>
             </div>
           </div>
-          <div className='card mt-3'>
-            <div className='card-body'>
-              <h5 className='card-title'>Sellers Description</h5>
+          <div className="card mt-3">
+            <div className="card-body">
+              <h5 className="card-title">Sellers Description</h5>
               {/* link to seller profile/user id */}
               <Link to={`/profile/${ad.postedBy}`}>
-                <div className='d-flex align-items-center'>
+                <div className="d-flex align-items-center">
                   {seller?.photoUrl ? (
                     <img
                       src={seller.photoUrl}
                       alt={seller.name}
                       style={{
-                        width: '50px',
-                        height: '50px',
-                        borderRadius: '50%',
-                        marginRight: '10px',
+                        width: "50px",
+                        height: "50px",
+                        borderRadius: "50%",
+                        marginRight: "10px",
                       }}
                     />
                   ) : (
-                    <FaUserCircle size={30} className='me-2' />
+                    <FaUserCircle size={30} className="me-2" />
                   )}
                   <h6>{seller?.name}</h6>
                 </div>
@@ -198,14 +198,14 @@ const Ad = () => {
             <div>
               {/* show this if user is logged in */}
               {auth.currentUser ? (
-                <div className='text-center'>
+                <div className="text-center">
                   {showNumber ? (
                     <p>
                       <FiPhoneCall size={20} /> {ad.contact}
                     </p>
                   ) : (
                     <button
-                      className='btn btn-secondary btn-sm mb-3'
+                      className="btn btn-secondary btn-sm mb-3"
                       onClick={() => setShowNumber(true)}
                     >
                       Show Contact Info
@@ -215,34 +215,34 @@ const Ad = () => {
                   {/* show button to the logged in user who is not the creator of the ad */}
                   {ad.postedBy !== auth.currentUser?.uid && (
                     // onClick a document is created in messages collection in Firestore
-                    <button className='btn btn-secondary btn-sm mb-3' onClick={createChatroom}>
+                    <button className="btn btn-secondary btn-sm mb-3" onClick={createChatroom}>
                       Chat With Seller
                     </button>
                   )}
                 </div>
               ) : (
-                <p className='text-center'>
+                <p className="text-center">
                   {/* show this if user is not logged in */}
-                  <Link to='/auth/login' state={{ from: location }} className='text-primary'>
+                  <Link to="/auth/login" state={{ from: location }} className="text-primary">
                     Login
-                  </Link>{' '}
+                  </Link>{" "}
                   to see contact info
                 </p>
               )}
             </div>
           </div>
           {/* mark ad as sold */}
-          <div className='mt-5 text-center'>
+          <div className="mt-5 text-center">
             {/* if ad.isSold is false and ad.postedBy is equal to the logged in user id */}
             {!ad.isSold && ad.postedBy === auth.currentUser?.uid && (
-              <button className='btn btn-secondary btn-sm' onClick={updateStatus}>
+              <button className="btn btn-secondary btn-sm" onClick={updateStatus}>
                 Mark as Sold
               </button>
             )}
           </div>
         </div>
       </div>
-      <div className='mt-5'>
+      <div className="mt-5">
         <h3>Description</h3>
         <p>{ad.description}</p>
       </div>
